@@ -16,20 +16,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
-const allowedOrigins = [
-    'https://ai-resume-hazel.vercel.app', // Production
-    'http://localhost:5173',              // Local dev
-  ];
+
   
-  app.use(cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-  }));
+  app.use(cors());
   
 
 const apiKey = process.env.GEMINI_API_KEY;
