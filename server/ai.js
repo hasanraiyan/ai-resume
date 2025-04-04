@@ -407,6 +407,10 @@ app.get('/', (req, res) => {
     res.send('Resume Analysis API is running. Use POST /analyse-resume to submit a file.');
 });
 
+app.get('/server-alive', (req, res) => {
+    res.send('Server is alive')
+})
+
 // Error handling middleware for multer
 app.use((err, req, res, next) => {
     if (err instanceof multer.MulterError) {
