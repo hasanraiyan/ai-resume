@@ -1,11 +1,11 @@
 // src/pages/ResultPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom'; // Optional: To get data passed via navigate state
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card'; // Adjust path if needed
-import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert'; // Adjust path if needed
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion'; // Adjust path if needed
-import { Progress } from '../components/ui/progress'; // Adjust path if needed
-import { Badge } from '../components/ui/badge'; // Adjust path if needed
+import { useLocation } from 'react-router-dom'; 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card'; 
+import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert'; 
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../components/ui/accordion'; 
+import { Progress } from '../components/ui/progress'; 
+import { Badge } from '../components/ui/badge'; 
 import { Loader2, Info, CheckCircle, XCircle, Target, ListChecks, AlertTriangle, Sparkles } from 'lucide-react'; // Icons
 
 // --- SIMULATED PARSED DATA ---
