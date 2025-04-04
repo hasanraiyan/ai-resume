@@ -154,7 +154,7 @@ export function Footer() {
         {/* Bottom Section: Copyright & Tech Stack */}
         <div className="mt-12 border-t border-border/20 pt-8 md:flex md:items-center md:justify-between"> {/* Use theme border */}
           <p className="text-base text-muted-foreground/70 md:order-1 md:mt-0">
-            © {new Date().getFullYear()} Team Delta (Project Lead: Razique Hasan). All rights reserved.
+            © {new Date().getFullYear()} Team Delta (Project Lead: Raiyan Hasan). All rights reserved.
           </p>
           {/* Tech Stack Badges */}
           <div className="mt-4 flex flex-wrap justify-center gap-2 md:mt-0 md:order-2"> {/* Use gap-2 and flex-wrap */}
