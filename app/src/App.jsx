@@ -5,6 +5,7 @@ import { Footer } from "./components/custom/Footer";       // Adjusted import pa
 import { HomePage } from "./pages/HomePage";
 import { ResultPage } from "./pages/ResultPage";
 import { DeveloperPage } from "./pages/DeveloperPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 // Import other pages like LoginPage if you create them
 
 export default function App() {
@@ -17,9 +18,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/result" element={<ResultPage />} />
           <Route path="/developer" element={<DeveloperPage />} />
-          {/* Add other routes here, e.g., <Route path="/login" element={<LoginPage />} /> */}
-          {/* Optional: Add a 404 Not Found route */}
-          {/* <Route path="*" element={<NotFoundPage />} /> */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       <Footer />
