@@ -7,7 +7,7 @@ import { GoogleAIFileManager } from '@google/generative-ai/server';
 import mime from 'mime-types';
 import 'dotenv/config';
 import cors from 'cors';
-import { fileURLToPath } from 'url'; 
+import { fileURLToPath } from 'url';
 
 // --- Configuration & Initialization ---
 const __filename = fileURLToPath(import.meta.url);
@@ -72,7 +72,7 @@ const upload = multer({
 // --- Gemini Model & Generation Configuration  ---
 const model = genAI.getGenerativeModel({
     model: "gemini-1.5-pro-latest",
-    systemInstruction: { role: "system", parts: [{text: "# ROLE & GOAL\nYou are \"ResumeRefine AI,\" a highly sophisticated resume analysis engine. Your primary goal is to provide detailed, actionable feedback to help users significantly improve their resume's effectiveness for passing Applicant Tracking Systems (ATS) and impressing human recruiters/hiring managers. You act as an objective but supportive career coach.\n\n# CORE TASK\nAnalyze the resume content provided by the user thoroughly based on the extracted text. Your analysis MUST cover the following dimensions:\n\n1.  **ATS Friendliness & Keyword Optimization:** Evaluate structure, identify keywords (general or specific if context provided), suggest additions.\n2.  **Impact & Quantification:** Assess action verbs, find opportunities for metrics, flag vague statements.\n3.  **Clarity, Conciseness & Professional Tone:** Check language, grammar, typos, jargon.\n4.  **Formatting & Readability (Inferred from Text):** Evaluate logical flow, scannability, consistency based *only* on the text content provided.\n5.  **Content Relevance & Completeness:** Evaluate summary/objective, experience details (responsibilities AND achievements), skills section.\n\n# OUTPUT STRUCTURE\nGenerate a JSON object strictly conforming to the provided `responseSchema`.\n\n# CONSTRAINTS\n*   Base analysis ONLY on provided text content. Do not invent details.\n*   Maintain objective, constructive tone.\n*   Provide concrete, actionable advice.\n*   Do NOT guarantee job placement.\n*   If content is ambiguous, state what's needed for better analysis (within the JSON structure if possible, e.g., in recommendations or summary).\n*   Refer to the input as 'the resume content provided'."}]},
+    systemInstruction: { role: "system", parts: [{ text: "# ROLE & GOAL\nYou are \"ResumeRefine AI,\" a highly sophisticated resume analysis engine. Your primary goal is to provide detailed, actionable feedback to help users significantly improve their resume's effectiveness for passing Applicant Tracking Systems (ATS) and impressing human recruiters/hiring managers. You act as an objective but supportive career coach.\n\n# CORE TASK\nAnalyze the resume content provided by the user thoroughly based on the extracted text. Your analysis MUST cover the following dimensions:\n\n1.  **ATS Friendliness & Keyword Optimization:** Evaluate structure, identify keywords (general or specific if context provided), suggest additions.\n2.  **Impact & Quantification:** Assess action verbs, find opportunities for metrics, flag vague statements.\n3.  **Clarity, Conciseness & Professional Tone:** Check language, grammar, typos, jargon.\n4.  **Formatting & Readability (Inferred from Text):** Evaluate logical flow, scannability, consistency based *only* on the text content provided.\n5.  **Content Relevance & Completeness:** Evaluate summary/objective, experience details (responsibilities AND achievements), skills section.\n\n# OUTPUT STRUCTURE\nGenerate a JSON object strictly conforming to the provided `responseSchema`.\n\n# CONSTRAINTS\n*   Base analysis ONLY on provided text content. Do not invent details.\n*   Maintain objective, constructive tone.\n*   Provide concrete, actionable advice.\n*   Do NOT guarantee job placement.\n*   If content is ambiguous, state what's needed for better analysis (within the JSON structure if possible, e.g., in recommendations or summary).\n*   Refer to the input as 'the resume content provided'." }] },
 });
 
 const generationConfig = {
@@ -81,7 +81,7 @@ const generationConfig = {
     topK: 64,
     maxOutputTokens: 8192,
     responseMimeType: "application/json",
-    responseSchema: { 
+    responseSchema: {
         type: "object",
         description: "Represents the output of a comprehensive resume analysis.",
         properties: {
@@ -93,7 +93,7 @@ const generationConfig = {
             recommendations: { type: "array", description: "Top 3-5 recommendations.", items: { type: "string" } }
         },
         required: ["overallScore", "summaryText", "sectionBreakdown", "keywordAnalysis", "formattingChecks", "recommendations"]
-     }, 
+    },
 };
 
 function sendStatusUpdate(res, eventName, data) {
@@ -112,7 +112,7 @@ function sendStatusUpdate(res, eventName, data) {
  * @returns {string|null} Gemini-compatible mime type or null if unsupported.
  */
 function getGeminiMimeType(uploadMimeType) {
-  
+
     const mapping = {
         'application/pdf': 'application/pdf',
         'image/png': 'image/png',
@@ -124,9 +124,9 @@ function getGeminiMimeType(uploadMimeType) {
     };
 
     if (uploadMimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || uploadMimeType === 'application/msword') {
-       console.warn(`Direct DOCX/DOC upload to Gemini File API might not work as expected. Consider extracting text first.`);
-       // Returning null will prevent upload attempt for now
-       return null;
+        console.warn(`Direct DOCX/DOC upload to Gemini File API might not work as expected. Consider extracting text first.`);
+        // Returning null will prevent upload attempt for now
+        return null;
     }
 
 
@@ -184,20 +184,20 @@ async function waitForFilesActive(files, sendStatus, res) {
                 console.error(`\nError checking file status for ${name}:`, error.message || error);
                 sendStatus(res, 'status', { message: `Error checking status for ${name}.`, stage: 'PROCESSING_ERROR' });
                 allActive = false;
-                processing = false; 
-                continue; 
+                processing = false;
+                continue;
             }
 
-             if (file.state !== lastState) { 
-                 sendStatus(res, 'status', { message: `File ${file.displayName} state: ${file.state}`, stage: 'PROCESSING_UPDATE', fileState: file.state });
-                 lastState = file.state;
-             }
+            if (file.state !== lastState) {
+                sendStatus(res, 'status', { message: `File ${file.displayName} state: ${file.state}`, stage: 'PROCESSING_UPDATE', fileState: file.state });
+                lastState = file.state;
+            }
 
             if (file.state === "ACTIVE") {
                 console.log(` File ${file.displayName} active.`);
-                processing = false; 
+                processing = false;
             } else if (file.state === "PROCESSING") {
-                 console.log(` File ${file.displayName} processing... Attempt ${attempts + 1}/${MAX_POLL_ATTEMPTS}`);
+                console.log(` File ${file.displayName} processing... Attempt ${attempts + 1}/${MAX_POLL_ATTEMPTS}`);
                 attempts++;
                 await new Promise((resolve) => setTimeout(resolve, POLLING_INTERVAL_MS));
             } else {
@@ -206,11 +206,11 @@ async function waitForFilesActive(files, sendStatus, res) {
                 allActive = false;
                 processing = false;
             }
-        } 
+        }
 
         if (processing && attempts >= MAX_POLL_ATTEMPTS) {
             console.log(`\nFile ${name} timed out waiting for processing.`);
-             sendStatus(res, 'status', { message: `File ${fileRef.displayName} timed out during processing.`, stage: 'PROCESSING_TIMEOUT' });
+            sendStatus(res, 'status', { message: `File ${fileRef.displayName} timed out during processing.`, stage: 'PROCESSING_TIMEOUT' });
             allActive = false;
         }
     } // End for loop
@@ -220,9 +220,9 @@ async function waitForFilesActive(files, sendStatus, res) {
         console.log("\n...all files ready.\n");
         return true;
     } else {
-         sendStatus(res, 'status', { message: "One or more files did not become active or failed processing.", stage: 'PROCESSING_INCOMPLETE' });
+        sendStatus(res, 'status', { message: "One or more files did not become active or failed processing.", stage: 'PROCESSING_INCOMPLETE' });
         console.log("\n...one or more files did not become active or failed.\n");
-        return false; 
+        return false;
     }
 }
 
@@ -241,19 +241,15 @@ async function performAnalysis(filePath, fileMimeType, sendStatus, res) {
             // 2. Wait for File Processing
             if (uploadedFile) {
                 fileIsReady = await waitForFilesActive([uploadedFile], sendStatus, res);
-                 if (!fileIsReady) {
-                     // Decide how to handle this: stop, or try analysis without the file?
-                     // For this example, we'll stop if the file was uploaded but didn't become active.
+                if (!fileIsReady) {
                     throw new Error(`File ${uploadedFile.displayName} failed to process in time.`);
                 }
             }
         } else {
 
-             // If you *did* extract text, you'd skip upload/wait and put text in the prompt.
-             console.warn(`File type ${fileMimeType} not directly uploaded. Text extraction needed but not implemented in this example.`);
-             sendStatus(res, 'status', { message: `File type ${fileMimeType} requires text extraction before analysis (not implemented).`, stage: 'EXTRACTION_NEEDED'});
-             // For now, we can't proceed with analysis for these types using only File API
-             throw new Error(`Analysis for ${fileMimeType} requires a text extraction step.`);
+            console.warn(`File type ${fileMimeType} not directly uploaded. Text extraction needed but not implemented in this example.`);
+            sendStatus(res, 'status', { message: `File type ${fileMimeType} requires text extraction before analysis (not implemented).`, stage: 'EXTRACTION_NEEDED' });
+            throw new Error(`Analysis for ${fileMimeType} requires a text extraction step.`);
         }
 
 
@@ -283,7 +279,7 @@ async function performAnalysis(filePath, fileMimeType, sendStatus, res) {
 
         const chatSession = model.startChat({
             generationConfig,
-            history: [], 
+            history: [],
 
         });
 
@@ -330,10 +326,10 @@ async function performAnalysis(filePath, fileMimeType, sendStatus, res) {
             });
         }
         // Close the SSE connection if it's still open
-         if (!res.writableEnded) {
-             console.log("Closing SSE connection from finally block.");
-             res.end();
-         }
+        if (!res.writableEnded) {
+            console.log("Closing SSE connection from finally block.");
+            res.end();
+        }
     }
 
 }
@@ -351,7 +347,7 @@ app.post('/analyse-resume', upload.single('resumeFile'), (req, res) => {
     }
 
     const filePath = req.file.path;
-    const fileMimeType = req.file.mimetype; // Get mime type from multer
+    const fileMimeType = req.file.mimetype; 
 
     console.log(`File uploaded: ${req.file.originalname} (${fileMimeType}), saved to ${filePath}`);
 
@@ -371,11 +367,11 @@ app.post('/analyse-resume', upload.single('resumeFile'), (req, res) => {
         // Clean up the temp file if analysis hasn't finished yet
         if (filePath && fs.existsSync(filePath)) {
             fs.unlink(filePath, (err) => {
-                 if (err) console.error(`Error deleting temp file on disconnect ${filePath}:`, err);
-                 else console.log(`Deleted temp file on disconnect: ${filePath}`);
+                if (err) console.error(`Error deleting temp file on disconnect ${filePath}:`, err);
+                else console.log(`Deleted temp file on disconnect: ${filePath}`);
             });
         }
-         // Ensure the response stream is ended on the server side as well
+        // Ensure the response stream is ended on the server side as well
         if (!res.writableEnded) {
             res.end();
         }
@@ -385,7 +381,7 @@ app.post('/analyse-resume', upload.single('resumeFile'), (req, res) => {
     performAnalysis(filePath, fileMimeType, sendStatusUpdate, res)
         .then(() => {
             console.log("Analysis process finished (results sent via SSE).");
-             // Ensure connection is closed if performAnalysis didn't close it already (e.g., successful completion)
+            // Ensure connection is closed if performAnalysis didn't close it already (e.g., successful completion)
             if (!res.writableEnded) {
                 console.log("Closing SSE connection after successful completion.");
                 res.end();
@@ -394,11 +390,11 @@ app.post('/analyse-resume', upload.single('resumeFile'), (req, res) => {
         .catch(err => {
             // Errors should have been sent via SSE already by performAnalysis
             console.error("Caught error after performAnalysis call (should have been handled via SSE):", err.message);
-             // Ensure connection is closed on unexpected errors caught here
+            // Ensure connection is closed on unexpected errors caught here
             if (!res.writableEnded) {
                 console.log("Closing SSE connection due to error caught after analysis call.");
-                 // Send a final generic error if one wasn't sent
-                 sendStatusUpdate(res, 'error', { success: false, message: 'An unexpected server error occurred.' });
+                // Send a final generic error if one wasn't sent
+                sendStatusUpdate(res, 'error', { success: false, message: 'An unexpected server error occurred.' });
                 res.end();
             }
         });
