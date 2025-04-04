@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://ai-resume-70ka.onrender.com',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         rewrite: path => path.replace(/^\/api/, '')
       }

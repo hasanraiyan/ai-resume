@@ -4,7 +4,7 @@ import { SiteHeader } from "./components/custom/SiteHeader"; // Adjusted import 
 import { Footer } from "./components/custom/Footer";       // Adjusted import path if needed
 import { HomePage } from "./pages/HomePage";
 import { ResultPage } from "./pages/ResultPage";
-import { DeveloperPage } from "./pages/DeveloperPage";
+import { DeveloperPage } from './pages/DeveloperPage';
 import { NotFoundPage } from "./pages/NotFoundPage";
 // Import other pages like LoginPage if you create them
 
