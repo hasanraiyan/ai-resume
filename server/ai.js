@@ -16,19 +16,19 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
-const allowedOrigins = ['https://ai-resume-analyser-hackathon.vercel.app'];
+// const allowedOrigins = ['https://ai-resume-analyser-hackathon.vercel.app'];
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  }
-};
+// const corsOptions = {
+//   origin: function (origin, callback) {
+//     if (allowedOrigins.includes(origin) || !origin) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   }
+// };
 
-app.use(cors(corsOptions));
+app.use(cors());
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
