@@ -28,7 +28,9 @@ const port = process.env.PORT || 3000;
 //   }
 // };
 
-app.use(cors());
+app.use(cors({
+    origin: 'https://ai-resume-hazel.vercel.app'
+  }));
 
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {

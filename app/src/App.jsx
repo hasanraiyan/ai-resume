@@ -8,7 +8,7 @@ import { DeveloperPage } from "./pages/DeveloperPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 // Import other pages like LoginPage if you create them
 
-fetch('https://ai-resume-70ka.onrender.com/server-alive')
+fetch('/api/server-alive')
   .then(data => console.log(data))
   .catch(err => console.error(err));
 
