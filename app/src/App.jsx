@@ -1,29 +1,28 @@
-import { SiteHeader } from "./components/custom/Header";
-import { HeroSection } from "./components/custom/HeroSection";
-import { ProblemSolveSection } from "./components/custom/ProblemSolveSection";
-import { HowItWorksSection } from "./components/custom/HowItWorksSection";
-import { FeaturesSection } from "./components/custom/FeaturesSection";
-import { SampleReportSection } from "./components/custom/SampleReportSection"
-import { TestimonialsSection } from "./components/custom/TestimonialsSection";
-import { PricingSection } from "./components/custom/PricingSection";
-import { UploadSection } from "./components/custom/UploadSection";
-import { FaqSection } from "./components/custom/FaqSection";
-import { Footer } from "./components/custom/Footer";
+// src/App.jsx
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { SiteHeader } from "./components/custom/SiteHeader"; // Adjusted import path if needed
+import { Footer } from "./components/custom/Footer";       // Adjusted import path if needed
+import { HomePage } from "./pages/HomePage";
+import { ResultPage } from "./pages/ResultPage";
+import { DeveloperPage } from "./pages/DeveloperPage";
+// Import other pages like LoginPage if you create them
 
 export default function App() {
   return (
-    <>
+    <Router>
+      {/* Header and Footer outside Routes will appear on all pages */}
       <SiteHeader />
-      <HeroSection />
-      <ProblemSolveSection />
-      <HowItWorksSection />
-      <FeaturesSection />
-      <SampleReportSection />
-      <TestimonialsSection />
-      <PricingSection />
-      <UploadSection />
-      <FaqSection />
+      <main className="flex-grow"> {/* Add flex-grow if using flex layout for sticky footer */}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/result" element={<ResultPage />} />
+          <Route path="/developer" element={<DeveloperPage />} />
+          {/* Add other routes here, e.g., <Route path="/login" element={<LoginPage />} /> */}
+          {/* Optional: Add a 404 Not Found route */}
+          {/* <Route path="*" element={<NotFoundPage />} /> */}
+        </Routes>
+      </main>
       <Footer />
-    </>
+    </Router>
   );
 }

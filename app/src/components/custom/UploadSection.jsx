@@ -1,45 +1,46 @@
-// src/components/UploadSection.jsx
+// src/components/custom/UploadSection.jsx
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input"; 
+import { Input } from "../ui/input";
 import { cn } from "../../lib/utils"; // Import the cn utility
-import { UploadCloud, ArrowRight, Lock } from 'lucide-react'; // Import icons
+import { UploadCloud, ArrowRight, Lock, Loader2 } from 'lucide-react'; // Import icons
 
 // Define allowed file types and max size (in bytes)
-const ALLOWED_FILE_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']; // PDF, DOC, DOCX
+const ALLOWED_FILE_TYPES = [
+    'application/pdf', // .pdf
+    'application/msword', // .doc
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document' // .docx
+];
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export function UploadSection() {
-  const [resumeFile, setResumeFile] = useState(null);
-  const [jobDescription, setJobDescription] = useState('');
-  const [fileName, setFileName] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  // --- State Variables ---
+  const [resumeFile, setResumeFile] = useState(null); // Stores the File object
+  const [jobDescription, setJobDescription] = useState(''); // Stores the textarea content
+  const [fileName, setFileName] = useState(''); // For displaying the selected file's name
+  const [error, setError] = useState(''); // Stores validation or submission error messages
+  const [isLoading, setIsLoading] = useState(false); // Tracks the submission loading state
+  const [isDraggingOver, setIsDraggingOver] = useState(false); // Tracks drag-over state for styling
 
-  // Ref for the hidden file input
-  const fileInputRef = useRef(null);
+  // --- Hooks ---
+  const fileInputRef = useRef(null); // Ref for the hidden file input element
+  const navigate = useNavigate(); // Hook from react-router-dom to navigate programmatically
 
-  const handleFileChange = (event) => {
-    const file = event.target.files?.[0];
-    processFile(file);
-    // Reset input value to allow re-uploading the same file
-    event.target.value = null;
-  };
-
+  // --- Helper Function to Process File (Validation) ---
   const processFile = (file) => {
     if (!file) return;
 
-    setError(''); // Clear previous errors
+    setError(''); // Clear previous errors on new file selection/drop
 
     // Validate file type
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       setError('Invalid file type. Please upload PDF, DOC, or DOCX.');
       setResumeFile(null);
       setFileName('');
-      return;
+      return false; // Indicate validation failure
     }
 
     // Validate file size
@@ -47,25 +48,40 @@ export function UploadSection() {
       setError(`File is too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB.`);
       setResumeFile(null);
       setFileName('');
-      return;
+      return false; // Indicate validation failure
     }
 
+    // If valid
     setResumeFile(file);
     setFileName(file.name);
+    return true; // Indicate validation success
   };
 
+  // --- Event Handlers ---
+
+  // Handles file selection via the hidden input
+  const handleFileChange = (event) => {
+    const file = event.target.files?.[0];
+    processFile(file);
+    // Reset input value to allow re-uploading the same file name consecutively
+    if (event.target) {
+        event.target.value = null;
+    }
+  };
+
+  // Handles changes in the job description textarea
   const handleJobDescriptionChange = (event) => {
     setJobDescription(event.target.value);
   };
 
-  // Handle click on the custom upload area to trigger the hidden input
-  const handleUploadAreaClick = () => {
-    fileInputRef.current?.click();
-  };
+  // Triggers click on the hidden file input when the custom area is clicked (using label is preferred)
+  // const handleUploadAreaClick = () => {
+  //   fileInputRef.current?.click();
+  // };
 
   // --- Drag and Drop Handlers ---
   const handleDragOver = (event) => {
-    event.preventDefault(); // Necessary to allow drop
+    event.preventDefault(); // Necessary to allow dropping
     setIsDraggingOver(true);
   };
 
@@ -77,54 +93,80 @@ export function UploadSection() {
   const handleDrop = (event) => {
     event.preventDefault();
     setIsDraggingOver(false);
-    const file = event.dataTransfer.files?.[0];
-    processFile(file);
+    const file = event.dataTransfer.files?.[0]; // Get the dropped file
+    if (file) {
+      processFile(file); // Validate and set the dropped file
+    }
   };
   // --- End Drag and Drop Handlers ---
 
+  // Handles the form submission
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault(); // Prevent default form submission behavior
     if (!resumeFile) {
       setError('Please upload your resume file.');
       return;
     }
+    // Clear any previous submission errors if file is present now
     setError('');
     setIsLoading(true);
 
-    console.log("Submitting:", { resumeFile, jobDescription });
+    console.log("Submitting Form Data:", { resumeFile, jobDescription });
 
     // --- !!! ---
-    // TODO: Implement your actual API call here
-    // Send `resumeFile` (File object) and `jobDescription` (string)
-    // Use FormData to send the file:
+    // TODO: Replace Simulation with Actual API Call
+    // This is where you would typically use FormData and fetch/axios:
+    //
     // const formData = new FormData();
     // formData.append('resume', resumeFile);
     // formData.append('jobDescription', jobDescription);
+    //
     // try {
-    //   const response = await fetch('/api/analyze', { method: 'POST', body: formData });
-    //   if (!response.ok) throw new Error('Analysis failed');
-    //   const results = await response.json();
+    //   const response = await fetch('/api/analyze', { // Your API endpoint
+    //     method: 'POST',
+    //     body: formData,
+    //   });
+    //   if (!response.ok) {
+    //     // Handle API errors (e.g., read error message from response body)
+    //     const errorData = await response.json().catch(() => ({ message: 'Analysis failed with status ' + response.status }));
+    //     throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    //   }
+    //   const results = await response.json(); // Or response.text() if backend sends raw markdown
     //   console.log("Analysis Results:", results);
-    //   // Handle successful analysis (e.g., show results)
+    //
+    //   // Navigate to results page, potentially passing data
+    //   navigate('/result', { state: { analysisData: results } }); // Pass data via state if needed
+    //
     // } catch (err) {
-    //   console.error("Analysis Error:", err);
-    //   setError(err.message || 'An error occurred during analysis.');
+    //   console.error("Analysis API Error:", err);
+    //   setError(err.message || 'An error occurred during analysis. Please try again.');
     // } finally {
     //   setIsLoading(false);
     // }
     // --- !!! ---
 
-    // Simulate API call delay for demo
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // ** Simulating API call delay and success for Demo **
+    try {
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate 2 seconds processing time
+        console.log("Simulated analysis complete.");
 
-    console.log("Simulated analysis complete.");
-    setIsLoading(false);
-    // Reset form or redirect after submission if needed
-    // setResumeFile(null);
-    // setFileName('');
-    // setJobDescription('');
+        // Navigate to the results page on simulated success
+        navigate('/result'); // Navigate to the '/result' route
+
+        // Optional: You could pass the simulated result (or real one) via state:
+        // const sampleMarkdownResult = `# Report\n...`; // Your markdown string
+        // navigate('/result', { state: { analysisResult: sampleMarkdownResult } });
+
+    } catch (err) {
+        // This catch block would be more relevant for the actual API call simulation if it could fail
+        console.error("Simulation Error (should not happen with setTimeout):", err);
+        setError('An unexpected error occurred during the simulation.');
+    } finally {
+        setIsLoading(false); // Ensure loading state is turned off
+    }
   };
 
+  // --- Render ---
   return (
     <section id="upload-section" className="py-20 sm:py-28 bg-background"> {/* Use bg-background */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -135,17 +177,19 @@ export function UploadSection() {
           Upload your resume below. Add a job description for the most tailored feedback!
         </p>
 
-        {/* Use a form element for semantic correctness */}
+        {/* Use a form element for semantic correctness and onSubmit handling */}
         <form onSubmit={handleSubmit}>
           <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            {/* Resume Upload Area */}
+
+            {/* Resume Upload Area (Left Column) */}
             <div className="space-y-4">
-              <Label htmlFor="file-upload-trigger" className="block text-sm font-medium text-foreground text-left">
+              <Label htmlFor="file-upload" className="block text-sm font-medium text-foreground text-left">
                 Upload Your Resume (PDF, DOCX)
               </Label>
+              {/* The Dropzone Div */}
               <div
                 className={cn(
-                  "relative border-2 border-dashed rounded-lg p-8 text-center transition duration-300 ease-in-out group",
+                  "relative border-2 border-dashed rounded-lg p-8 text-center transition duration-300 ease-in-out group cursor-pointer", // Added cursor-pointer
                   isDraggingOver
                     ? "border-primary bg-primary/10" // Style when dragging over
                     : "border-border hover:border-primary/60 bg-muted/20 hover:bg-primary/5" // Default and hover styles
@@ -153,37 +197,39 @@ export function UploadSection() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()} // Trigger file input on click
               >
-                <UploadCloud className={cn("mx-auto h-12 w-12 transition", isDraggingOver ? "text-primary" : "text-muted-foreground/60 group-hover:text-primary/80")} />
-                {/* This label triggers the hidden input */}
-                <Label
-                  htmlFor="file-upload" // Connect to the *hidden* input's ID
-                  className="relative cursor-pointer mt-4 block"
-                  // onClick={handleUploadAreaClick} // Can also trigger via div click if needed, but label works
-                >
-                  <span className="block text-sm font-semibold text-primary group-hover:text-primary/90">
+                <UploadCloud className={cn(
+                    "mx-auto h-12 w-12 transition",
+                    isDraggingOver ? "text-primary" : "text-muted-foreground/60 group-hover:text-primary/80"
+                )} aria-hidden="true" />
+
+                {/* Text instructions inside dropzone */}
+                <p className="mt-4 text-sm font-semibold text-primary group-hover:text-primary/90">
                     Choose a file
-                  </span>
-                  <span className="block text-xs text-muted-foreground"> or drag and drop</span>
-                </Label>
-                {/* Hidden actual file input, controlled by the label above */}
+                </p>
+                <p className="text-xs text-muted-foreground"> or drag and drop</p>
+
+                {/* Hidden actual file input */}
                 <Input
                   id="file-upload" // ID for the label's htmlFor
                   ref={fileInputRef}
                   name="file-upload"
                   type="file"
-                  className="sr-only" // Keep it visually hidden
-                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" // Specify accepted types
+                  className="sr-only" // Keep it visually hidden but accessible
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" // Specify accepted types explicitly
                   onChange={handleFileChange}
                 />
                 <p className="text-xs text-muted-foreground mt-2">Max file size: 10MB</p>
+
                 {/* Display selected file name or error */}
                 {fileName && !error && (
-                  <p className="mt-3 text-sm font-medium text-foreground truncate px-4">
+                  <p className="mt-3 text-sm font-medium text-green-600 dark:text-green-500 truncate px-4">
                     Selected: {fileName}
                   </p>
                 )}
-                {error && (
+                {/* Display validation errors */}
+                {error && !isLoading && ( // Only show validation error if not in loading state
                   <p className="mt-3 text-sm font-medium text-destructive">
                     Error: {error}
                   </p>
@@ -191,7 +237,7 @@ export function UploadSection() {
               </div>
             </div>
 
-            {/* Job Description Input Area */}
+            {/* Job Description Input Area (Right Column) */}
             <div className="space-y-4">
               <Label htmlFor="job-description" className="block text-sm font-medium text-foreground text-left">
                 Paste Job Description (Optional, Recommended)
@@ -200,7 +246,7 @@ export function UploadSection() {
                 id="job-description"
                 name="job-description"
                 rows={8}
-                className="shadow-sm block w-full sm:text-sm p-4 min-h-[210px]" // Added min-height to roughly match upload area
+                className="shadow-sm block w-full sm:text-sm p-4 min-h-[226px] focus-visible:ring-primary" // Added min-height to roughly match upload area, adjust as needed
                 placeholder="Paste the full job description here for the best analysis..."
                 value={jobDescription}
                 onChange={handleJobDescriptionChange}
@@ -216,28 +262,33 @@ export function UploadSection() {
             <Button // Use shadcn Button
               type="submit"
               size="lg" // Larger size
-              className="px-10 py-7 text-lg font-bold rounded-full shadow-lg transform transition duration-300 ease-in-out hover:scale-105" // Adjusted padding/text size
-              disabled={isLoading || !resumeFile} // Disable if loading or no file
+              className="px-10 py-7 text-lg font-bold rounded-full shadow-lg transform transition duration-300 ease-in-out hover:scale-105 w-full sm:w-auto" // Responsive width
+              disabled={isLoading || !resumeFile} // Disable if loading or no file selected
             >
               {isLoading ? (
                 <>
-                  <span className="animate-spin mr-2 inline-block h-5 w-5 border-2 border-current border-t-transparent rounded-full" role="status" aria-hidden="true"></span>
+                  <Loader2 className="animate-spin mr-2 inline-block h-5 w-5" aria-hidden="true" />
                   Analyzing...
                 </>
               ) : (
                 <>
                   Analyze My Resume Now
-                  <ArrowRight className="ml-3 h-6 w-6" />
+                  <ArrowRight className="ml-3 h-6 w-6" aria-hidden="true" />
                 </>
               )}
             </Button>
-             {/* Display general submission errors here if needed */}
+             {/* Display general submission errors here if needed (e.g., from the API call failure) */}
+             {error && isLoading && ( // Show general error if loading failed (less common for validation errors now)
+                 <p className="mt-4 text-sm font-medium text-destructive">
+                     Error: {error}
+                 </p>
+             )}
           </div>
         </form>
 
         {/* Privacy Text */}
         <p className="mt-8 text-sm text-muted-foreground flex items-center justify-center space-x-2 max-w-prose mx-auto">
-          <Lock className="w-5 h-5 flex-shrink-0" /> {/* lucide icon */}
+          <Lock className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
           <span>Your privacy matters. Files are processed securely & deleted after analysis (unless saved to an account). Compliant with GDPR & CCPA.</span>
         </p>
       </div>
