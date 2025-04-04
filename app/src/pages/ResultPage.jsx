@@ -52,7 +52,7 @@ export function ResultPage() {
       // }
 
       try {
-        await fetchEventSource('/api/analyse-resume', { // Use the proxied API path
+        await fetchEventSource('https://ai-resume-70ka.onrender.com/analyse-resume', { 
           method: 'POST',
           headers: {
             // Don't set Content-Type for FormData, browser does it with boundary
